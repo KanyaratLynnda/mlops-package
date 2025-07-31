@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Model artifacts and large files
+*.pkl
+*.ipynb
+*.dylib
+*.node
+*.pack.gz
+/mlops_deployment/
+
+# IDE
+.vscode/
+.idea/
