@@ -14,7 +14,7 @@ import Step7Infrastructure from './steps/Step7Infrastructure';
 import Step8FileGeneration from './steps/Step8FileGeneration';
 
 function FormContent() {
-  const { state, nextStep, prevStep, isPending } = useFormContext();
+  const { state, nextStep, prevStep } = useFormContext();
 
   const renderStep = () => {
     switch(state.currentStep) {
@@ -40,8 +40,8 @@ function FormContent() {
   };
 
   const canProceed = () => {
-    // This will be validated by the server action
-    return !isPending;
+    // This will be validated by the form state
+    return true;
   };
 
   return (
@@ -56,9 +56,9 @@ function FormContent() {
           <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
             <button
               onClick={prevStep}
-              disabled={state.currentStep === 1 || isPending}
+              disabled={state.currentStep === 1}
               className={`flex items-center px-6 py-2 rounded-md font-medium transition-colors ${
-                state.currentStep === 1 || isPending
+                state.currentStep === 1
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
@@ -80,7 +80,7 @@ function FormContent() {
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed'
               }`}
             >
-              {isPending ? 'Loading...' : (state.currentStep === 8 ? 'Finish' : state.currentStep === 7 ? 'Generate Files' : 'Next')}
+              {state.currentStep === 8 ? 'Finish' : state.currentStep === 7 ? 'Generate Files' : 'Next'}
               <ChevronRight size={20} className="ml-1" />
             </button>
           </div>

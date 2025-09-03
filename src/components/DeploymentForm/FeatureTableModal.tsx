@@ -40,7 +40,7 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
       id: Date.now().toString(),
       order: localFeatures.length + 1,
       name: '',
-      type: 'numerical',
+      type: '',
       transformation: '',
       description: '',
       step1: { name: '', value: '' },
@@ -144,7 +144,7 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
             id: Date.now().toString() + index,
             order: parseInt(values[0]) || index + 1,
             name: values[1] || '',
-            type: (values[2] as Feature['type']) || 'numerical',
+            type: (values[2] as Feature['type']) || '',
             transformation: '',
             description: values[3] || '',
             step1: { name: values[4] || '', value: values[5] || '' },
@@ -209,18 +209,18 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
             <table className="w-full border-collapse border border-gray-300 text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium">Actions</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium">Order</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium min-w-[150px]">Feature Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium">Type</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium min-w-[120px]">Step 1 Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium min-w-[200px]">Step 1 Value</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium min-w-[120px]">Step 2 Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium min-w-[200px]">Step 2 Value</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium min-w-[120px]">Step 3 Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium min-w-[200px]">Step 3 Value</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium min-w-[120px]">Step 4 Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium min-w-[200px]">Step 4 Value</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800">Actions</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800">Order</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[150px]">Feature Name</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Type</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Step 1 Name</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[200px]">Step 1 Value</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Step 2 Name</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[200px]">Step 2 Value</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Step 3 Name</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[200px]">Step 3 Value</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Step 4 Name</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[200px]">Step 4 Value</th>
                 </tr>
               </thead>
               <tbody>
@@ -264,22 +264,19 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
                         value={feature.name}
                         onChange={(e) => updateFeature(feature.id, 'name', e.target.value)}
                         placeholder="Feature name"
-                        className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
                       />
                     </td>
 
                     {/* Type */}
                     <td className="border border-gray-300 px-2 py-2">
-                      <select
+                      <input
+                        type="text"
                         value={feature.type}
                         onChange={(e) => updateFeature(feature.id, 'type', e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      >
-                        <option value="numerical">Numerical</option>
-                        <option value="categorical">Categorical</option>
-                        <option value="boolean">Boolean</option>
-                        <option value="datetime">DateTime</option>
-                      </select>
+                        placeholder="Enter type (e.g., numerical, categorical)"
+                        className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
+                      />
                     </td>
 
                     {/* Preprocessing Steps */}
@@ -290,7 +287,7 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
                           <select
                             value={(feature[`step${stepNum}` as keyof Feature] as PreprocessingStep)?.name || ''}
                             onChange={(e) => updateFeature(feature.id, `step${stepNum}.name`, e.target.value)}
-                            className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
                           >
                             <option value="">Select step...</option>
                             {COMMON_PREPROCESSING_STEPS.map(step => (
@@ -306,7 +303,7 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
                             onChange={(e) => updateFeature(feature.id, `step${stepNum}.value`, e.target.value)}
                             placeholder="Step configuration/value"
                             rows={2}
-                            className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+                            className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none text-gray-900 placeholder-gray-500 bg-white"
                           />
                         </td>
                       </React.Fragment>
@@ -332,7 +329,7 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors text-gray-900 bg-white"
             >
               Cancel
             </button>

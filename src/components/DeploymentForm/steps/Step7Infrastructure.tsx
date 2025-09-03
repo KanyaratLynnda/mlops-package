@@ -12,10 +12,24 @@ export default function Step7Infrastructure() {
   const [alertEmails, setAlertEmails] = useState<string[]>(data.alertEmails || ['']);
   const [infraConfig, setInfraConfig] = useState({
     machineType: data.machineType || 'n1-standard-4',
-    maxWorkers: data.maxWorkers || '10',
+    maxWorkers: data.maxWorkers || '50',
     diskSize: data.diskSize || '100',
     schedule: data.schedule || '0 6 * * *'
   });
+
+  // Parse existing cron or set defaults
+  const parseCron = (cronString: string) => {
+    const parts = cronString.split(' ');
+    return {
+      minute: parts[0] || '*',
+      hour: parts[1] || '*',
+      dayOfMonth: parts[2] || '*',
+      month: parts[3] || '*',
+      dayOfWeek: parts[4] || '*'
+    };
+  };
+
+  const [cronConfig, setCronConfig] = useState(() => parseCron(infraConfig.schedule));
 
   // No automatic syncing - only sync when user navigates
   // The form will be synced when nextStep is called
@@ -36,6 +50,39 @@ export default function Step7Infrastructure() {
     setInfraConfig(prev => ({ ...prev, [field]: value }));
   };
 
+  const updateCronConfig = (field: string, value: string) => {
+    setCronConfig(prev => {
+      const newCron = { ...prev, [field]: value };
+      const cronString = `${newCron.minute} ${newCron.hour} ${newCron.dayOfMonth} ${newCron.month} ${newCron.dayOfWeek}`;
+      setInfraConfig(prevInfra => ({ ...prevInfra, schedule: cronString }));
+      return newCron;
+    });
+  };
+
+  // Generate options for dropdowns
+  const generateOptions = (start: number, end: number, prefix = '') => {
+    const options = [{ value: '*', label: 'N/A' }];
+    for (let i = start; i <= end; i++) {
+      options.push({ value: i.toString(), label: `${prefix}${i}` });
+    }
+    return options;
+  };
+
+  const minuteOptions = generateOptions(0, 59);
+  const hourOptions = generateOptions(0, 23);
+  const dayOfMonthOptions = generateOptions(1, 31);
+  const monthOptions = generateOptions(1, 12);
+  const dayOfWeekOptions = [
+    { value: '*', label: 'N/A' },
+    { value: '0', label: 'Sunday' },
+    { value: '1', label: 'Monday' },
+    { value: '2', label: 'Tuesday' },
+    { value: '3', label: 'Wednesday' },
+    { value: '4', label: 'Thursday' },
+    { value: '5', label: 'Friday' },
+    { value: '6', label: 'Saturday' }
+  ];
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -46,76 +93,118 @@ export default function Step7Infrastructure() {
         <p className="text-gray-600">Configure deployment infrastructure and monitoring</p>
       </div>
 
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <h3 className="font-medium mb-4">Dataflow Configuration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Machine Type
-            </label>
-            <select
-              value={infraConfig.machineType}
-              onChange={(e) => updateInfraConfig('machineType', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="n1-standard-2">n1-standard-2</option>
-              <option value="n1-standard-4">n1-standard-4</option>
-              <option value="n1-standard-8">n1-standard-8</option>
-              <option value="n1-highmem-4">n1-highmem-4</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Max Workers
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="50"
-              value={infraConfig.maxWorkers}
-              onChange={(e) => updateInfraConfig('maxWorkers', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Disk Size (GB)
-            </label>
-            <input
-              type="number"
-              min="50"
-              max="1000"
-              value={infraConfig.diskSize}
-              onChange={(e) => updateInfraConfig('diskSize', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-      </div>
-
       <div className="bg-blue-50 p-4 rounded-lg">
-        <h3 className="font-medium mb-4">Scheduling</h3>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Cron Schedule
-          </label>
-          <select
-            value={infraConfig.schedule}
-            onChange={(e) => updateInfraConfig('schedule', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="0 6 * * *">Daily at 6:00 AM</option>
-            <option value="0 2 * * 1">Weekly on Monday at 2:00 AM</option>
-            <option value="0 3 1 * *">Monthly on 1st at 3:00 AM</option>
-            <option value="">Manual trigger only</option>
-          </select>
+        <h3 className="font-medium mb-4 text-gray-800">Scheduling</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Cron Schedule Configuration
+            </label>
+            <p className="text-xs text-gray-600 mb-3">
+              Configure when your pipeline should run. Use "N/A" (*) for any value.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Minute (0-59)
+              </label>
+              <select
+                value={cronConfig.minute}
+                onChange={(e) => updateCronConfig('minute', e.target.value)}
+                className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white text-sm"
+              >
+                {minuteOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Hour (0-23)
+              </label>
+              <select
+                value={cronConfig.hour}
+                onChange={(e) => updateCronConfig('hour', e.target.value)}
+                className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white text-sm"
+              >
+                {hourOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Day of Month (1-31)
+              </label>
+              <select
+                value={cronConfig.dayOfMonth}
+                onChange={(e) => updateCronConfig('dayOfMonth', e.target.value)}
+                className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white text-sm"
+              >
+                {dayOfMonthOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Month (1-12)
+              </label>
+              <select
+                value={cronConfig.month}
+                onChange={(e) => updateCronConfig('month', e.target.value)}
+                className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white text-sm"
+              >
+                {monthOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Day of Week
+              </label>
+              <select
+                value={cronConfig.dayOfWeek}
+                onChange={(e) => updateCronConfig('dayOfWeek', e.target.value)}
+                className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white text-sm"
+              >
+                {dayOfWeekOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="mt-3 p-2 bg-gray-50 rounded border">
+            <p className="text-xs text-gray-600">
+              <strong>Current cron expression:</strong> <code className="bg-white px-1 rounded">{infraConfig.schedule}</code>
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Format: minute hour day-of-month month day-of-week
+            </p>
+          </div>
         </div>
       </div>
 
       <div className="bg-yellow-50 p-4 rounded-lg">
-        <h3 className="font-medium mb-4">Alert Emails</h3>
+        <h3 className="font-medium mb-4 text-gray-800">Alert Emails</h3>
         <div className="space-y-3">
           {alertEmails.map((email, index) => (
             <div key={index} className="flex items-center gap-2">
@@ -124,7 +213,7 @@ export default function Step7Infrastructure() {
                 value={email}
                 onChange={(e) => updateEmailAlert(index, e.target.value)}
                 placeholder="email@company.com"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
               />
               {alertEmails.length > 1 && (
                 <button

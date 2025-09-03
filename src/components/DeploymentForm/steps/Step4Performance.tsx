@@ -31,7 +31,7 @@ export default function Step4Performance() {
             value={data.auc}
             onChange={(e) => updateField('auc', e.target.value)}
             placeholder="67.77"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
           />
         </div>
 
@@ -47,7 +47,7 @@ export default function Step4Performance() {
             value={data.f1Score}
             onChange={(e) => updateField('f1Score', e.target.value)}
             placeholder="1.21"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
           />
         </div>
 
@@ -63,7 +63,7 @@ export default function Step4Performance() {
             value={data.precision}
             onChange={(e) => updateField('precision', e.target.value)}
             placeholder="0.61"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
           />
         </div>
 
@@ -79,7 +79,7 @@ export default function Step4Performance() {
             value={data.recall}
             onChange={(e) => updateField('recall', e.target.value)}
             placeholder="57.84"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
           />
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function Step4Performance() {
           onChange={(e) => updateField('performanceNotes', e.target.value)}
           placeholder="Any additional notes about model performance, validation methodology, etc."
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
         />
       </div>
 

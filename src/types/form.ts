@@ -7,7 +7,7 @@ export interface Feature {
     id: string;
     order: number;
     name: string;
-    type: 'numerical' | 'categorical' | 'boolean' | 'datetime';
+    type: 'numerical' | 'categorical' | 'boolean' | 'datetime' | '';
     transformation: string;
     description: string;
     step1?: PreprocessingStep;

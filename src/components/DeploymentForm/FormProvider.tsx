@@ -1,9 +1,8 @@
 'use client';
 
-import { createContext, useContext, useActionState, useTransition} from 'react'; 
+import { createContext, useContext, useState } from 'react'; 
 import type { FormData } from '@/types/form';
 import { FormState } from '@/types/form';
-import {updateFormField} from '@/lib/actions';
 
 interface FormContextType {
     state: FormState; 
@@ -12,7 +11,6 @@ interface FormContextType {
     updateObjectField: (field: keyof FormData, value: object) => void;
     nextStep (): void;
     prevStep (): void;
-    isPending: boolean; 
 }
 
 const FormContext = createContext<FormContextType | null>(null);
@@ -75,61 +73,50 @@ const initialState: FormState = {
 }
 
 export function FormProvider({ children }: { children: React.ReactNode }) {
-    const [isPending, startTransition] = useTransition();
-    const [state, dispatch] = useActionState(updateFormField, initialState);
+    const [state, setState] = useState<FormState>(initialState);
 
     const updateField = (field: keyof FormData, value: string) => {
-        const formData = new FormData();
-        formData.append('actionType', 'updateField');
-        formData.append(field, value);
-        startTransition(() => {
-            dispatch(formData);
-        });
+        setState(prev => ({
+            ...prev,
+            data: {
+                ...prev.data,
+                [field]: value
+            }
+        }));
     };
 
     const updateArrayField = (field: keyof FormData, value: any[]) => {
-        // For complex fields like arrays, we'll serialize and update
-        const formData = new FormData();
-        formData.append('actionType', 'updateField');
-        formData.append(field, JSON.stringify(value));
-        startTransition(() => {
-            dispatch(formData);
-        });
+        setState(prev => ({
+            ...prev,
+            data: {
+                ...prev.data,
+                [field]: value
+            }
+        }));
     };
 
     const updateObjectField = (field: keyof FormData, value: object) => {
-        // For complex fields like objects, we'll serialize and update
-        const formData = new FormData();
-        formData.append('actionType', 'updateField');
-        formData.append(field, JSON.stringify(value));
-        startTransition(() => {
-            dispatch(formData);
-        });
+        setState(prev => ({
+            ...prev,
+            data: {
+                ...prev.data,
+                [field]: value
+            }
+        }));
     };
 
     const nextStep = () => {
-        const formData = new FormData();
-        formData.append('actionType', 'nextStep');
-        Object.entries(state.data).forEach(([key, value]) => {
-            if (typeof value === 'string') {
-                formData.append(key, value);
-            } else if (Array.isArray(value)) {
-                formData.append(key, JSON.stringify(value));
-            } else if (typeof value === 'object' && value !== null) {
-                formData.append(key, JSON.stringify(value));
-            }
-        });
-        startTransition(() => {
-            dispatch(formData);
-        });
+        setState(prev => ({
+            ...prev,
+            currentStep: Math.min(prev.currentStep + 1, 8)
+        }));
     };
 
     const prevStep = () => {
-        const formData = new FormData();
-        formData.append('actionType', 'prevStep');
-        startTransition(() => {
-            dispatch(formData);
-        });
+        setState(prev => ({
+            ...prev,
+            currentStep: Math.max(prev.currentStep - 1, 1)
+        }));
     };
 
     return (
@@ -139,8 +126,7 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
       updateArrayField,
       updateObjectField,
       nextStep,
-      prevStep,
-      isPending
+      prevStep
     }}>
       {children}
     </FormContext.Provider>

@@ -19,7 +19,7 @@ export default function Step3Dataset() {
       </div>
 
       <div className="bg-gray-50 p-4 rounded-lg">
-        <h3 className="font-medium mb-4">BigQuery Project & Tables</h3>
+        <h3 className="font-medium mb-4 text-gray-800">BigQuery Project & Tables</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -30,7 +30,7 @@ export default function Step3Dataset() {
               value={data.projectId}
               onChange={(e) => updateField('projectId', e.target.value)}
               placeholder="ds-dev-289802"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
                 errors.projectId ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -48,7 +48,7 @@ export default function Step3Dataset() {
               value={data.trainTable}
               onChange={(e) => updateField('trainTable', e.target.value)}
               placeholder="dataset.train_table"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
                 errors.trainTable ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -66,7 +66,7 @@ export default function Step3Dataset() {
               value={data.testTable}
               onChange={(e) => updateField('testTable', e.target.value)}
               placeholder="dataset.test_table"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
                 errors.testTable ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -84,7 +84,7 @@ export default function Step3Dataset() {
               value={data.valTable}
               onChange={(e) => updateField('valTable', e.target.value)}
               placeholder="dataset.val_table"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
                 errors.valTable ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -102,14 +102,14 @@ export default function Step3Dataset() {
               value={data.ootTable}
               onChange={(e) => updateField('ootTable', e.target.value)}
               placeholder="dataset.oot_table"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
             />
           </div>
         </div>
       </div>
 
       <div className="bg-blue-50 p-4 rounded-lg">
-        <h3 className="font-medium mb-4">Data Structure</h3>
+        <h3 className="font-medium mb-4 text-gray-800">Data Structure</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -120,7 +120,7 @@ export default function Step3Dataset() {
               value={data.populationKey}
               onChange={(e) => updateField('populationKey', e.target.value)}
               placeholder="customer_id, contact_adw_key"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
                 errors.populationKey ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -138,7 +138,7 @@ export default function Step3Dataset() {
               value={data.targetColumn}
               onChange={(e) => updateField('targetColumn', e.target.value)}
               placeholder="target, label, y"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
                 errors.targetColumn ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -156,7 +156,7 @@ export default function Step3Dataset() {
               onChange={(e) => updateField('exclusionCriteria', e.target.value)}
               placeholder="Describe any data exclusions (e.g., inactive customers, test accounts...)"
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
             />
           </div>
         </div>

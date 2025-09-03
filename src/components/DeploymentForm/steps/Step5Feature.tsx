@@ -121,7 +121,7 @@ export default function Step5Features() {
           onChange={(e) => updateField('featureNotes', e.target.value)}
           placeholder="Any additional notes about feature engineering, selection methodology, preprocessing rationale, etc."
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
         />
       </div>
 

@@ -28,7 +28,7 @@ export default function Step2Repository() {
             value={data.repositoryUrl}
             onChange={(e) => updateField('repositoryUrl', e.target.value)}
             placeholder="https://github.com/company/model-repo or https://bitbucket.org/..."
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
               errors.repositoryUrl ? 'border-red-500' : 'border-gray-300'
             }`}
           />
@@ -46,7 +46,7 @@ export default function Step2Repository() {
             value={data.branch}
             onChange={(e) => updateField('branch', e.target.value)}
             placeholder="main, master, develop"
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
               errors.branch ? 'border-red-500' : 'border-gray-300'
             }`}
           />
@@ -64,7 +64,7 @@ export default function Step2Repository() {
             value={data.commitHash}
             onChange={(e) => updateField('commitHash', e.target.value)}
             placeholder="f1186fd (optional)"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
           />
         </div>
       </div>

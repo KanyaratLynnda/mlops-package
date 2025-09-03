@@ -28,7 +28,7 @@ export default function Step1BasicInfo() {
             value={data.initiativeName}
             onChange={(e) => updateField('initiativeName', e.target.value)}
             placeholder="e.g., hertz_discount, customer_churn"
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
               errors.initiativeName ? 'border-red-500' : 'border-gray-300'
             }`}
           />
@@ -46,7 +46,7 @@ export default function Step1BasicInfo() {
             value={data.modelVersion}
             onChange={(e) => updateField('modelVersion', e.target.value)}
             placeholder="e.g., v1.0, v2.1"
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
               errors.modelVersion ? 'border-red-500' : 'border-gray-300'
             }`}
           />
@@ -59,20 +59,15 @@ export default function Step1BasicInfo() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Model Type <span className="text-red-500">*</span>
           </label>
-          <select
+          <input
+            type="text"
             value={data.modelType}
             onChange={(e) => updateField('modelType', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            placeholder="e.g., LightGBM, XGBoost, TensorFlow etc."
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
               errors.modelType ? 'border-red-500' : 'border-gray-300'
             }`}
-          >
-            <option value="">Select model type</option>
-            <option value="lightgbm">LightGBM</option>
-            <option value="xgboost">XGBoost</option>
-            <option value="sklearn">Scikit-learn</option>
-            <option value="tensorflow">TensorFlow</option>
-            <option value="pytorch">PyTorch</option>
-          </select>
+          />
           {errors.modelType && (
             <p className="text-red-500 text-sm mt-1">{errors.modelType}</p>
           )}
@@ -87,7 +82,7 @@ export default function Step1BasicInfo() {
             value={data.dataScientist}
             onChange={(e) => updateField('dataScientist', e.target.value)}
             placeholder="your.email@company.com"
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
               errors.dataScientist ? 'border-red-500' : 'border-gray-300'
             }`}
           />
@@ -104,7 +99,7 @@ export default function Step1BasicInfo() {
             type="date"
             value={data.targetDeploymentDate}
             onChange={(e) => updateField('targetDeploymentDate', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
           />
         </div>
       </div>
@@ -118,7 +113,7 @@ export default function Step1BasicInfo() {
           onChange={(e) => updateField('businessPurpose', e.target.value)}
           placeholder="Describe what this model does and its business impact..."
           rows={4}
-          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
             errors.businessPurpose ? 'border-red-500' : 'border-gray-300'
           }`}
         />

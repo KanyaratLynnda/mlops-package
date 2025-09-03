@@ -706,7 +706,7 @@ ORDER BY ${data.populationKey}
           <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
             <div className="flex items-center mb-4">
               <CheckCircle className="text-green-600 mr-2" size={24} />
-              <h3 className="text-lg font-semibold text-green-800">✅ Deployment configuration complete!</h3>
+              <h3 className="text-lg font-semibold text-green-800">Deployment configuration complete!</h3>
             </div>
             <div className="text-sm text-green-700 space-y-1">
               <p>📁 <strong>Target directory:</strong> <code className="bg-green-100 px-2 py-1 rounded">{targetDirectory}</code></p>
@@ -721,7 +721,7 @@ ORDER BY ${data.populationKey}
               className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium shadow-lg"
             >
               <Archive size={20} />
-              📥 Download All Files (ZIP)
+              Download All Files (ZIP)
             </button>
           </div>
 
