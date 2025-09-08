@@ -10,6 +10,7 @@ export default function Step1BasicInfo() {
 
   return (
     <div className="space-y-6">
+      
       <div className="text-center mb-8">
         <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
           <FileText className="text-blue-600" size={32} />
@@ -81,7 +82,7 @@ export default function Step1BasicInfo() {
             type="email"
             value={data.dataScientist}
             onChange={(e) => updateField('dataScientist', e.target.value)}
-            placeholder="your.email@company.com"
+            placeholder="your.email@aca.aaa.com"
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
               errors.dataScientist ? 'border-red-500' : 'border-gray-300'
             }`}
