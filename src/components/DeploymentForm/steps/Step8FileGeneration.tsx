@@ -6,6 +6,7 @@ import { useFormContext } from '../FormProvider';
 import { useState, useEffect } from 'react';
 import JSZip from 'jszip';
 import { PreprocessingStep } from '@/types/form';
+import { generateModelVersionMetadataYAML } from '../../../../backend/utils/metadataGenerator';
 
 interface GeneratedFile {
   filename: string;
@@ -46,99 +47,7 @@ export default function Step8FileGeneration() {
           type: 'yaml',
           icon: <FileText className="text-blue-600" size={16} />,
           description: 'Model configuration and metadata',
-          content: `# Model Version Metadata
-model_cd: "${modelCode}"
-model_name: "${data.initiativeName}"
-model_version: "${data.modelVersion}"
-model_type: "${data.modelType}"
-business_purpose: "${data.businessPurpose}"
-data_scientist: "${data.dataScientist}"
-target_deployment_date: "${data.targetDeploymentDate}"
-docker_image_name: "gcr.io/mlops-platform/${modelCode}:${data.modelVersion}"
-
-repository:
-  url: "${data.repositoryUrl}"
-  branch: "${data.branch}"
-  commit_hash: "${data.commitHash || 'latest'}"
-
-dataset:
-  project_id: "${data.projectId}"
-  train_table: "${data.trainTable}"
-  test_table: "${data.testTable}"
-  validation_table: "${data.valTable}"
-  oot_table: "${data.ootTable}"
-  processed_train_table: "${data.processedTrainTable || data.trainTable + '_processed'}"
-  processed_test_table: "${data.processedTestTable || data.testTable + '_processed'}"
-  processed_validation_table: "${data.processedValTable || data.valTable + '_processed'}"
-  processed_oot_table: "${data.processedOotTable || data.ootTable + '_processed'}"
-  
-keys:
-  id_keys: ["${data.populationKey}"]
-  target_column: "${data.targetColumn}"
-  population_key: "${data.populationKey}"
-  exclusion_criteria: "${data.exclusionCriteria || 'None'}"
-
-performance_metrics:
-  auc: ${data.auc || 'null'}
-  f1_score: ${data.f1Score || 'null'}
-  precision: ${data.precision || 'null'}
-  recall: ${data.recall || 'null'}
-  notes: "${data.performanceNotes || 'No additional notes'}"
-
-features:
-${data.features.sort((a, b) => a.order - b.order).map(f => {
-  let featureYaml = `  - name: "${f.name}"
-    type: "${f.type}"
-    description: "${f.description}"`;
-  
-  // Add transformation if present
-  if (f.transformation && f.transformation.trim()) {
-    featureYaml += `
-    transformation: "${f.transformation}"`;
-  }
-  
-  // Add preprocessing steps if present
-  const steps = [f.step1, f.step2, f.step3, f.step4].filter((step): step is PreprocessingStep => 
-    step !== undefined && step.name !== undefined && step.value !== undefined && step.name.trim() !== '' && step.value.trim() !== ''
-  );
-  if (steps.length > 0) {
-    featureYaml += `
-    preprocessing_steps:`;
-    steps.forEach((step, index) => {
-      featureYaml += `
-      step_${index + 1}:
-        name: "${step.name}"
-        value: "${step.value}"`;
-    });
-  }
-  
-  return featureYaml;
-}).join('\n')}
-
-infrastructure:
-  machine_type: "${data.machineType}"
-  max_workers: ${data.maxWorkers}
-  disk_size: "${data.diskSize}GB"
-  schedule: "${data.schedule}"
-  alert_emails:
-${data.alertEmails.filter(email => email.trim()).map(email => `    - "${email}"`).join('\n')}
-
-ranking_intervals:
-  daily: true
-  weekly: true
-  monthly: false
-
-model_artifacts:
-  model_file: "${modelCode}_model.pkl"
-  config_file: "${modelCode}_config.yaml"
-  requirements_file: "requirements.txt"
-  
-metadata:
-  created_at: "${new Date().toISOString()}"
-  created_by: "${data.dataScientist}"
-  model_directory: "${targetDirectory}"
-  deployment_status: "pending"
-`
+          content: generateModelVersionMetadataYAML(data)
         },
         {
           filename: 'model_catalog_metadata.yaml',
@@ -759,8 +668,8 @@ ORDER BY ${data.populationKey}
                 
                 {showPreview === file.filename && (
                   <div className="mt-4 border-t pt-4">
-                    <pre className={`bg-gray-50 p-4 rounded text-sm overflow-x-auto max-h-96 overflow-y-auto ${getSyntaxHighlightClass(file.type)}`}>
-                      <code>{file.content}</code>
+                    <pre className={`bg-white border border-gray-200 p-4 rounded text-sm overflow-x-auto max-h-96 overflow-y-auto ${getSyntaxHighlightClass(file.type)} text-gray-800`}>
+                      <code className="text-gray-800 font-mono">{file.content}</code>
                     </pre>
                   </div>
                 )}
@@ -772,7 +681,7 @@ ORDER BY ${data.populationKey}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
             <h4 className="font-medium text-blue-800 mb-2">📋 File Summary:</h4>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>• <strong>model_version_metadata.yaml</strong> - Complete model configuration with detailed preprocessing steps</li>
+              <li>• <strong>model_version_metadata.yaml</strong> - Complete model metadata with feature_names array and structured preprocessing config</li>
               <li>• <strong>model_catalog_metadata.yaml</strong> - Registry metadata for model catalog integration</li>
               <li>• <strong>deployment.yaml</strong> - Kubernetes deployment configuration</li>
               <li>• <strong>deployment.env</strong> - Environment variables for deployment</li>
@@ -784,7 +693,7 @@ ORDER BY ${data.populationKey}
             
             {data.features.length > 0 && (
               <div className="mt-4 pt-4 border-t border-blue-200">
-                <h5 className="font-medium text-blue-800 mb-2">🔧 Features with Preprocessing:</h5>
+                <h5 className="font-medium text-blue-800 mb-2">🔧 Generated Feature Names (in order):</h5>
                 <div className="text-xs text-blue-600 max-h-32 overflow-y-auto">
                   {data.features.sort((a, b) => a.order - b.order).map((f, index) => {
                     const steps = [f.step1, f.step2, f.step3, f.step4].filter((step): step is PreprocessingStep => 
@@ -792,7 +701,7 @@ ORDER BY ${data.populationKey}
                     );
                     return (
                       <div key={index} className="mb-1">
-                        <strong>{f.name}</strong> ({f.type})
+                        <strong>{index + 1}. {f.name}</strong> ({f.type})
                         {steps.length > 0 && (
                           <span className="ml-2 text-blue-500">
                             [{steps.map(s => `${s.name}=${s.value}`).join(', ')}]
@@ -801,6 +710,9 @@ ORDER BY ${data.populationKey}
                       </div>
                     );
                   })}
+                </div>
+                <div className="mt-2 text-xs text-blue-500">
+                  ✅ Features automatically ordered and included in feature_names array
                 </div>
               </div>
             )}

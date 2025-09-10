@@ -1,0 +1,6 @@
+Order,Model Feature Name,Source Table Name,Data Field Name,Num/Cat,Transformation(s),Null Imputed Value
+1,"click_per_campaign_metric","adw-lake-prd.cdl.campaign_metrics","click_per_campaign_metric","Num","capped","0"
+2,"per_nissan_cars","adw-lake-prd.hotlist.automotive","per_nissan_cars","Num","capped","-1"
+3,"payment_amt_sum","adw-prd.adw.mbrs_payments","payment_amt_sum","Cat","capped","0"
+4,"classic_txns_due_sum","adw-prd.adw.sales_age","classic_txns_due_sum","Num","binned","0"
+5,"marketing_attract_score","adw-lake-prd.demographics","marketing_attract_score","Cat","encoding","-9999"

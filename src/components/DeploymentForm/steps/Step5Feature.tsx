@@ -6,6 +6,7 @@ import { useFormContext } from '../FormProvider';
 import { useState } from 'react';
 import { Feature } from '@/types/form';
 import FeatureTableModal from '../FeatureTableModal';
+import PreprocessingStepsSelector from '@/components/PreprocessingStepsSelector';
 
 export default function Step5Features() {
   const { state, updateField, updateArrayField } = useFormContext();
@@ -51,7 +52,7 @@ export default function Step5Features() {
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium"
           >
             <Table size={20} />
-            📊 Edit Features Table
+            Edit Features Table
           </button>
         </div>
 
@@ -109,6 +110,14 @@ export default function Step5Features() {
           <Eye size={16} />
           View/Edit All Features
         </button>
+      </div>
+
+      {/* Preprocessing Steps Configuration */}
+      <div>
+        <PreprocessingStepsSelector
+          steps={data.preprocessingSteps || []}
+          onChange={(steps) => updateArrayField('preprocessingSteps', steps)}
+        />
       </div>
 
       {/* Feature Engineering Notes */}

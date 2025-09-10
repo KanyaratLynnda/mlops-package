@@ -3,13 +3,26 @@ export interface PreprocessingStep {
     value: string;
 }
 
+export interface PreprocessingPipelineStep {
+    id: string;
+    name: string;
+    description: string;
+    dataTypes: ('numeric' | 'categorical' | 'both')[];
+    order: number;
+    enabled: boolean;
+    config?: Record<string, any>;
+}
+
 export interface Feature {
     id: string;
     order: number;
     name: string;
-    type: 'numerical' | 'categorical' | 'boolean' | 'datetime' | '';
+    type: 'Num' | 'Cat' | 'numerical' | 'categorical' | 'boolean' | 'datetime' | '';
     transformation: string;
     description: string;
+    sourceTable?: string;
+    dataField?: string;
+    nullImputedValue?: string;
     step1?: PreprocessingStep;
     step2?: PreprocessingStep;
     step3?: PreprocessingStep;
@@ -26,6 +39,7 @@ export interface FormData {
     // - 1 Basic Initiative Information
     initiativeName: string;
     modelVersion: string;
+    modelCode: string;
     modelType: string;
     businessPurpose: string;
     dataScientist: string;
@@ -60,6 +74,7 @@ export interface FormData {
     // - 5 Features
     features: Feature[];
     featureNotes: string;
+    preprocessingSteps: PreprocessingPipelineStep[];
 
     // - 6 File Uploads
     uploadedFiles: {
@@ -88,6 +103,7 @@ export interface FormData {
 
     submissionDate: string;
 }
+
 
 export interface ValidationState {
     [key: string]: boolean;

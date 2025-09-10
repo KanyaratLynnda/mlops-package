@@ -119,7 +119,7 @@ export default function Step3Dataset() {
               type="text"
               value={data.populationKey}
               onChange={(e) => updateField('populationKey', e.target.value)}
-              placeholder="customer_id, contact_adw_key"
+              placeholder="contact_adw_key, mbr_adw_key"
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white ${
                 errors.populationKey ? 'border-red-500' : 'border-gray-300'
               }`}

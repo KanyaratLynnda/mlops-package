@@ -43,6 +43,9 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
       type: '',
       transformation: '',
       description: '',
+      sourceTable: '',
+      dataField: '',
+      nullImputedValue: '',
       step1: { name: '', value: '' },
       step2: { name: '', value: '' },
       step3: { name: '', value: '' },
@@ -60,23 +63,30 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
   };
 
   const updateFeature = (id: string, field: string, value: any) => {
-    setLocalFeatures(prev => prev.map(feature => {
-      if (feature.id === id) {
-        if (field.includes('.')) {
-          const [stepKey, stepField] = field.split('.');
-          const currentStep = feature[stepKey as keyof Feature] as PreprocessingStep || { name: '', value: '' };
-          return {
-            ...feature,
-            [stepKey]: {
-              ...currentStep,
-              [stepField]: value
-            }
-          };
+    console.log('updateFeature called:', { id, field, value });
+    setLocalFeatures(prev => {
+      const updated = prev.map(feature => {
+        if (feature.id === id) {
+          if (field.includes('.')) {
+            const [stepKey, stepField] = field.split('.');
+            const currentStep = feature[stepKey as keyof Feature] as PreprocessingStep || { name: '', value: '' };
+            return {
+              ...feature,
+              [stepKey]: {
+                ...currentStep,
+                [stepField]: value
+              }
+            };
+          }
+          const updatedFeature = { ...feature, [field]: value };
+          console.log('Feature updated:', updatedFeature);
+          return updatedFeature;
         }
-        return { ...feature, [field]: value };
-      }
-      return feature;
-    }));
+        return feature;
+      });
+      console.log('All features after update:', updated);
+      return updated;
+    });
   };
 
   const moveFeature = (fromIndex: number, toIndex: number) => {
@@ -97,23 +107,18 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
   };
 
   const exportToCSV = () => {
-    const headers = ['Order', 'Feature Name', 'Type', 'Description', 'Step 1 Name', 'Step 1 Value', 'Step 2 Name', 'Step 2 Value', 'Step 3 Name', 'Step 3 Value', 'Step 4 Name', 'Step 4 Value'];
+    const headers = ['Order', 'Model Feature Name', 'Source Table Name', 'Data Field Name', 'Num/Cat', 'Transformation(s)', 'Null Imputed Value'];
     
     const csvContent = [
       headers.join(','),
       ...localFeatures.map(f => [
         f.order,
         f.name,
+        f.sourceTable || '',
+        f.dataField || '',
         f.type,
-        f.description,
-        f.step1?.name || '',
-        f.step1?.value || '',
-        f.step2?.name || '',
-        f.step2?.value || '',
-        f.step3?.name || '',
-        f.step3?.value || '',
-        f.step4?.name || '',
-        f.step4?.value || ''
+        f.transformation || '',
+        f.nullImputedValue || ''
       ].map(cell => `"${cell}"`).join(','))
     ].join('\n');
 
@@ -140,21 +145,83 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
         .filter(line => line.trim())
         .map((line, index) => {
           const values = line.split(',').map(v => v.replace(/"/g, ''));
-          return {
+          
+          // Process transformation string to map known values to our toggle format
+          const transformationText = (values[5] || '').toLowerCase();
+          const transformations = [];
+          
+          console.log('Processing transformation text:', transformationText);
+          
+          // Map common transformation patterns to our toggle values
+          if (transformationText) {
+            // Check for clipping patterns - handle both "capped" and "clipping"
+            if (transformationText.includes('capped') || 
+                transformationText.includes('cap') || 
+                transformationText.includes('floor') ||
+                transformationText.includes('clip')) {
+              transformations.push('clipping');
+            }
+            
+            // Check for binning patterns  
+            if (transformationText.includes('binned') || 
+                transformationText.includes('bin') ||
+                transformationText.includes('bucketing')) {
+              transformations.push('binning');
+            }
+            
+            // Check for encoding patterns
+            if (transformationText.includes('encoding') || 
+                transformationText.includes('woe') || 
+                transformationText.includes('encode') ||
+                transformationText.includes('weight of evidence')) {
+              transformations.push('encoding');
+            }
+            
+            // If no mapping found, keep original value but try to map single words
+            if (transformations.length === 0) {
+              const words = transformationText.split(/[,\s]+/).filter(w => w.trim());
+              for (const word of words) {
+                if (word === 'capped' || word === 'cap') {
+                  transformations.push('clipping');
+                } else if (word === 'binned' || word === 'bin') {
+                  transformations.push('binning');
+                } else if (word === 'encoding' || word === 'encode' || word === 'woe') {
+                  transformations.push('encoding');
+                }
+              }
+            }
+          }
+          
+          const processedTransformation = transformations.join(', ');
+          console.log('CSV Import - Feature:', values[1], 'Original transform:', values[5], 'Processed:', processedTransformation);
+          
+          const featureData = {
             id: Date.now().toString() + index,
             order: parseInt(values[0]) || index + 1,
             name: values[1] || '',
-            type: (values[2] as Feature['type']) || '',
-            transformation: '',
-            description: values[3] || '',
-            step1: { name: values[4] || '', value: values[5] || '' },
-            step2: { name: values[6] || '', value: values[7] || '' },
-            step3: { name: values[8] || '', value: values[9] || '' },
-            step4: { name: values[10] || '', value: values[11] || '' }
-          };
+            sourceTable: values[2] || '',
+            dataField: values[3] || '',
+            type: (values[4] as Feature['type']) || '' as Feature['type'],
+            transformation: processedTransformation,
+            nullImputedValue: values[6] || '',
+            description: '',
+            step1: { name: '', value: '' },
+            step2: { name: '', value: '' },
+            step3: { name: '', value: '' },
+            step4: { name: '', value: '' }
+          } as Feature;
+          
+          console.log('Created feature object:', featureData);
+          return featureData;
         });
       
+      console.log('Imported features:', importedFeatures);
       setLocalFeatures(importedFeatures);
+      
+      // Force a re-render to ensure the UI updates
+      setTimeout(() => {
+        console.log('Current localFeatures after import:', importedFeatures);
+      }, 100);
     };
     reader.readAsText(file);
   };
@@ -211,16 +278,12 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
                 <tr>
                   <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800">Actions</th>
                   <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800">Order</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[150px]">Feature Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Type</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Step 1 Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[200px]">Step 1 Value</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Step 2 Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[200px]">Step 2 Value</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Step 3 Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[200px]">Step 3 Value</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Step 4 Name</th>
-                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[200px]">Step 4 Value</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[150px]">Model Feature Name</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[150px]">Source Table Name</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[150px]">Data Field Name</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[80px]">Num/Cat</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Transformation(s)</th>
+                  <th className="border border-gray-300 px-2 py-3 text-left font-medium text-gray-800 min-w-[120px]">Null Imputed Value</th>
                 </tr>
               </thead>
               <tbody>
@@ -257,57 +320,121 @@ export default function FeatureTableModal({ isOpen, onClose, features, onSave }:
                       {feature.order}
                     </td>
 
-                    {/* Feature Name */}
+                    {/* Model Feature Name */}
                     <td className="border border-gray-300 px-2 py-2">
                       <input
                         type="text"
                         value={feature.name}
                         onChange={(e) => updateFeature(feature.id, 'name', e.target.value)}
-                        placeholder="Feature name"
+                        placeholder="Model feature name"
                         className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
                       />
                     </td>
 
-                    {/* Type */}
+                    {/* Source Table Name */}
                     <td className="border border-gray-300 px-2 py-2">
                       <input
                         type="text"
-                        value={feature.type}
-                        onChange={(e) => updateFeature(feature.id, 'type', e.target.value)}
-                        placeholder="Enter type (e.g., numerical, categorical)"
+                        value={feature.sourceTable || ''}
+                        onChange={(e) => updateFeature(feature.id, 'sourceTable', e.target.value)}
+                        placeholder="Source table name"
                         className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
                       />
                     </td>
 
-                    {/* Preprocessing Steps */}
-                    {[1, 2, 3, 4].map(stepNum => (
-                      <React.Fragment key={stepNum}>
-                        {/* Step Name */}
-                        <td className="border border-gray-300 px-2 py-2">
-                          <select
-                            value={(feature[`step${stepNum}` as keyof Feature] as PreprocessingStep)?.name || ''}
-                            onChange={(e) => updateFeature(feature.id, `step${stepNum}.name`, e.target.value)}
-                            className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
-                          >
-                            <option value="">Select step...</option>
-                            {COMMON_PREPROCESSING_STEPS.map(step => (
-                              <option key={step} value={step}>{step}</option>
-                            ))}
-                          </select>
-                        </td>
-                        
-                        {/* Step Value */}
-                        <td className="border border-gray-300 px-2 py-2">
-                          <textarea
-                            value={(feature[`step${stepNum}` as keyof Feature] as PreprocessingStep)?.value || ''}
-                            onChange={(e) => updateFeature(feature.id, `step${stepNum}.value`, e.target.value)}
-                            placeholder="Step configuration/value"
-                            rows={2}
-                            className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none text-gray-900 placeholder-gray-500 bg-white"
-                          />
-                        </td>
-                      </React.Fragment>
-                    ))}
+                    {/* Data Field Name */}
+                    <td className="border border-gray-300 px-2 py-2">
+                      <input
+                        type="text"
+                        value={feature.dataField || ''}
+                        onChange={(e) => updateFeature(feature.id, 'dataField', e.target.value)}
+                        placeholder="Data field name"
+                        className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
+                      />
+                    </td>
+
+                    {/* Num/Cat Type */}
+                    <td className="border border-gray-300 px-2 py-2">
+                      <select
+                        value={feature.type}
+                        onChange={(e) => updateFeature(feature.id, 'type', e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 bg-white"
+                      >
+                        <option value="">Select...</option>
+                        <option value="Num">Num</option>
+                        <option value="Cat">Cat</option>
+                      </select>
+                    </td>
+
+                    {/* Transformation(s) */}
+                    <td className="border border-gray-300 px-2 py-2">
+                      <div className="flex flex-col gap-1">
+                        {['clipping', 'binning', 'encoding'].map((transformType) => {
+                          // Simple and robust way to check if transformation is active
+                          const transformationString = feature.transformation || '';
+                          const isActive = transformationString.includes(transformType);
+                          
+                          console.log(`Feature ${feature.name} - Transform ${transformType}:`, {
+                            transformationString,
+                            isActive,
+                            includes: transformationString.includes(transformType)
+                          });
+                          
+                          return (
+                            <button
+                              key={transformType}
+                              onClick={() => {
+                                console.log('Toggle clicked:', transformType, 'Current state:', isActive);
+                                console.log('Current transformation string:', feature.transformation);
+                                
+                                const currentTransformations = feature.transformation ? 
+                                  feature.transformation.split(',').map(t => t.trim()).filter(t => t) : [];
+                                
+                                console.log('Parsed transformations:', currentTransformations);
+                                
+                                let newTransformations;
+                                if (isActive) {
+                                  // Remove transformation
+                                  newTransformations = currentTransformations.filter(t => t !== transformType);
+                                } else {
+                                  // Add transformation
+                                  newTransformations = [...currentTransformations, transformType];
+                                }
+                                
+                                console.log('New transformations array:', newTransformations);
+                                const newTransformationString = newTransformations.join(', ');
+                                console.log('New transformation string:', newTransformationString);
+                                
+                                updateFeature(feature.id, 'transformation', newTransformationString);
+                              }}
+                              className={`
+                                px-2 py-1 text-xs rounded border transition-all duration-200 w-full text-left
+                                ${isActive 
+                                  ? 'bg-blue-600 text-white border-blue-700 shadow-md font-medium' 
+                                  : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+                                }
+                              `}
+                            >
+                              <span className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-white' : 'bg-gray-300'}`}></div>
+                                {transformType}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </td>
+
+                    {/* Null Imputed Value */}
+                    <td className="border border-gray-300 px-2 py-2">
+                      <input
+                        type="text"
+                        value={feature.nullImputedValue || ''}
+                        onChange={(e) => updateFeature(feature.id, 'nullImputedValue', e.target.value)}
+                        placeholder="Null imputed value"
+                        className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder-gray-500 bg-white"
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>

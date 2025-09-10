@@ -18,6 +18,7 @@ const FormContext = createContext<FormContextType | null>(null);
 const initialFormData: FormData = {
     initiativeName: '',
     modelVersion: '',
+    modelCode: '',
     modelType: '',
     businessPurpose: '',
     dataScientist: '',
@@ -48,6 +49,7 @@ const initialFormData: FormData = {
     // - 5 Features
     features: [],
     featureNotes: '',
+    preprocessingSteps: [],
     // - 6 File Uploads
     uploadedFiles: {},
     // - 7 Infrastructure
